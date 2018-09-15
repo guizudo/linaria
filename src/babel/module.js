@@ -50,8 +50,9 @@ class Module {
 
     if (filename === id && !path.isAbsolute(id)) {
       // Native Node modules
-      /* $FlowFixMe */
-      return require(id);
+      throw new Error(
+        `Unable to import "${id}". Importing Node builtins is not supported in the sandbox.`
+      );
     }
 
     let m = cache[filename];
@@ -112,11 +113,11 @@ class Module {
         module: this,
         exports: this.exports,
         require: requireImpl,
-        process: {
-          env: {
+        process: Object.freeze({
+          env: Object.freeze({
             NODE_ENV: process.env.NODE_ENV,
-          },
-        },
+          }),
+        }),
         __filename: this.filename,
         __dirname: path.dirname(this.filename),
       })
